@@ -41,11 +41,6 @@ class WorkflowSchema(BaseModel):
         component_types_dict = {
             item.type: index for index, item in enumerate(components)
         }
-        print("component_types_dict", component_types_dict)
-        print(
-            "WorkflowComponentType.IMPORT in component_types_dict",
-            WorkflowComponentType.IMPORT in component_types_dict,
-        )
         if (WorkflowComponentType.IMPORT in component_types_dict) and (
             component_types_dict[WorkflowComponentType.IMPORT] != 0
         ):
@@ -75,8 +70,6 @@ class WorkflowSchema(BaseModel):
 def create_workflow(request: WorkflowSchema, session: Session = Depends(get_session)):
     # TODO: validate and store components
     try:
-        print("create_workflow", request)
-
         workflow_db = Workflow(name=request.name)
         session.add(workflow_db)
         session.commit()
@@ -92,7 +85,6 @@ def create_workflow(request: WorkflowSchema, session: Session = Depends(get_sess
                 session.add(component_db)
             session.commit()
 
-        print("workflow_db", workflow_db)
         return workflow_db.id
     except ValueError as a:
         raise HTTPException(status_code=400, detail=str(a))

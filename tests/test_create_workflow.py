@@ -96,9 +96,6 @@ class TestAPI(TestCase):
             assert_that(str(wf.id)).is_equal_to(workflow_id)
             assert_that(wf.name).is_equal_to(given_workflow["name"])
 
-            wfc = session.query(WorkflowComponentModel).all()
-            print("wfc", len(wfc))
-
     def test_should_validate_import_and_export_positions_error(self):
         given_workflow = {
             "name": "test",
@@ -128,9 +125,6 @@ class TestAPI(TestCase):
         }
 
         response = self.client.post("/workflow/", json=given_workflow)
-        # print("response", response)
-        # print("response.status_code", response.status_code)
-        # print("response json", response.json())
 
         assert_that(response.status_code).is_equal_to(200)
         workflow_id = response.json()
