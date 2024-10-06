@@ -3,4 +3,6 @@ black
 fastapi[standard]
 flake8
 httpx
+ipdb
+isort
 parameterized

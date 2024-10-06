@@ -1,18 +1,16 @@
+from collections import defaultdict
 from enum import Enum
 from typing import Union
 
-
-from collections import defaultdict
-
-from fastapi.encoders import jsonable_encoder
 from fastapi import Depends, FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlmodel import Session
 
 from microservice.db.engine import create_tables, get_session
-from microservice.db.models import Workflow
+from microservice.db.models import Component, Workflow
 
 app = FastAPI()
 
@@ -121,9 +119,18 @@ class WorkflowSchema(BaseModel):
 
 @app.post("/workflow")
 def create_workflow(request: WorkflowSchema, session: Session = Depends(get_session)):
-    # TODO: validate and store components
-    workflow_db = Workflow(name=request.name)
+    components_db = [
+        Component(
+            type=c.type.value,
+            settings=c.settings,
+        )
+        for c in request.components
+    ]
+    workflow_db = Workflow(
+        name=request.name,
+        components=components_db,
+    )
     session.add(workflow_db)
     session.commit()
     session.refresh(workflow_db)
-    return workflow_db.id
+    return JSONResponse(content={"workflow_id": str(workflow_db.id)})

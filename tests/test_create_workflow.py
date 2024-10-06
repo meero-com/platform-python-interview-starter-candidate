@@ -1,13 +1,13 @@
 import uuid
+from unittest import TestCase
 
 from assertpy import assert_that
 from fastapi.testclient import TestClient
 from parameterized import parameterized
-from unittest import TestCase
 
 from microservice.api import app
-from microservice.db.engine import get_test_session, get_session
-from microservice.db.models import Workflow
+from microservice.db.engine import get_session, get_test_session
+from microservice.db.models import ComponentTypeEnum, Workflow
 
 
 class TestAPI(TestCase):
@@ -152,13 +152,59 @@ class TestAPI(TestCase):
         given_workflow = {"name": "test"}
 
         response = self.client.post("/workflow/", json=given_workflow)
+        response_body = response.json()
 
         assert_that(response.status_code).is_equal_to(200)
-        workflow_id = response.json()
-        assert_that(workflow_id).is_instance_of(str)
+        assert_that(response_body["workflow_id"]).is_instance_of(str)
+        workflow_id = response_body["workflow_id"]
 
         # without a GET endpoint, we look directly in the db
         with next(get_test_session()) as session:
             wf = session.get(Workflow, uuid.UUID(workflow_id))
             assert_that(str(wf.id)).is_equal_to(workflow_id)
             assert_that(wf.name).is_equal_to(given_workflow["name"])
+
+    def test_should_create_workflow_with_components(self):
+        given_workflow = {
+            "name": "test",
+            "components": [{"type": "crop"}, {"type": "shadow"}],
+        }
+
+        response = self.client.post("/workflow/", json=given_workflow)
+        response_body = response.json()
+
+        assert_that(response.status_code).is_equal_to(200)
+        assert_that(response_body["workflow_id"]).is_instance_of(str)
+        workflow_id = response_body["workflow_id"]
+
+        # without a GET endpoint, we look directly in the db
+        with next(get_test_session()) as session:
+            wf = session.get(Workflow, uuid.UUID(workflow_id))
+            assert_that(str(wf.id)).is_equal_to(workflow_id)
+            assert_that(len(wf.components)).is_equal_to(2)
+            assert_that(wf.components[0].type).is_equal_to(ComponentTypeEnum.CROP)
+            assert_that(wf.components[0].settings).is_none()
+            assert_that(wf.components[1].type).is_equal_to(ComponentTypeEnum.SHADOW)
+            assert_that(wf.components[1].settings).is_none()
+
+    def test_should_create_workflow_with_settings(self):
+        settings = {"zoom": 2, "render": False}
+        given_workflow = {
+            "name": "test",
+            "components": [{"type": "crop", "settings": settings}],
+        }
+
+        response = self.client.post("/workflow/", json=given_workflow)
+        response_body = response.json()
+
+        assert_that(response.status_code).is_equal_to(200)
+        assert_that(response_body["workflow_id"]).is_instance_of(str)
+        workflow_id = response_body["workflow_id"]
+
+        # without a GET endpoint, we look directly in the db
+        with next(get_test_session()) as session:
+            wf = session.get(Workflow, uuid.UUID(workflow_id))
+            assert_that(str(wf.id)).is_equal_to(workflow_id)
+            assert_that(len(wf.components)).is_equal_to(1)
+            assert_that(wf.components[0].type).is_equal_to(ComponentTypeEnum.CROP)
+            assert_that(wf.components[0].settings).is_equal_to(settings)

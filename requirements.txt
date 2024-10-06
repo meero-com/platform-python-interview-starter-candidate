@@ -2,4 +2,3 @@ fastapi
 pydantic
 sqlmodel
 psycopg2-binary
-ipdb
