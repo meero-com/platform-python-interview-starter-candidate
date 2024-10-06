@@ -5,3 +5,4 @@
 *local*
 *.egg-info/
 venv/
+microservice.db

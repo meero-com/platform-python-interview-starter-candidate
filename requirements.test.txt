@@ -1,2 +1,6 @@
-httpx
 assertpy
+black
+fastapi[standard]
+flake8
+httpx
+parameterized
