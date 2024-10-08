@@ -58,8 +58,9 @@ Once you are finished, please
 - push this repo to your github with your solution on a feature branch
 - make the github repo private
 - allow at least one of the following users to read the repo:
-  - oliver-autoretouch
-  - jfouca
+  - [oallwr](https://github.com/oallwr)
+  - [jfouca](https://github.com/jfouca)
+  - [loic-toanen-meero](https://github.com/loic-toanen-meero)
 
 
 Finally, please feel free to make this repo yours! You're allowed to change anything and everything!
